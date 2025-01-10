@@ -6,6 +6,10 @@ import logging
 from pydantic import BaseModel
 import json
 import random
+import secrets
+from threading import Lock
+import hashlib
+import os
 
 # Created File Imports
 from databaseDataInsert import *
@@ -18,9 +22,7 @@ from emailSender import *
 # LOGIN #
  
 def login(user: UserLogin):
-    if attemptLogin(user.username, user.password):
-        return PostResponse(statusCode=200, message="LOGIN_OK")
-    return PostResponse(statusCode=400, message="LOGIN_FAIL")
+    return attemptLogin(user.username, user.password)
 
 # REGISTRATION #
 
@@ -31,7 +33,7 @@ def register(user: RegisterUser):
         return PostResponse(statusCode=400, message="REGISTER_FAILED_USERNAME_USED")
     elif searchForUserWithUsername(user.username):
         return PostResponse(statusCode=400, message="REGISTER_FAILED_EMAIL_USED")
-    addUserToDatabase(user.username, user.firstName, user.lastName, user.email, f"{user.birthDay}/{user.birthMonth}/{user.birthYear}", user.password, user.gender)
+    addUserToDatabase(user.username, user.firstName, user.lastName, user.email, f"{user.birthDay}/{user.birthMonth}/{user.birthYear}", getEncryptedPassword(user.password), user.gender)
     return PostResponse(statusCode=200, message="REGISTER_OK")
 
 def isValidBirthdate(user):
@@ -172,3 +174,15 @@ def attemptSessionClose(sessionCloseData):
 # SSE Session utils
 async def getSSEPostResponse(sessionId, username, timestamp, event, value= ""):
     return SSEData(sessionId= sessionId, username= username, timeStamp= timestamp, event= event, value= value)
+
+
+# Token Generation
+def generateLoginToken():
+    return secrets.token_hex(32)
+
+# Password Encryption
+
+def getEncryptedPassword(password):
+    salt = os.urandom(16)
+    hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+    return salt + hashed_password

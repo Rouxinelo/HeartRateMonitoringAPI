@@ -3,11 +3,24 @@ from utils import *
 app = FastAPI()
 event_queue = asyncio.Queue()
 
+sessionTokens = {}
+lock = Lock()
+
 # Main Path, Unavailable
 
 @app.get("/")
 def index(): 
     return {"path": "Invalid Path"}
+
+# Login Path. Used to login to the system
+
+@app.post("/login-user")
+def loginUser(user: UserLogin):
+    if login(user):
+        token = generateLoginToken()
+        sessionTokens[user.username] = token
+        return PostResponse(statusCode=200, message="LOGIN_OK")
+    return PostResponse(statusCode=400, message="LOGIN_FAIL")
 
 # Get User Data Path. Used to get the user's Data after login
 
@@ -24,12 +37,6 @@ async def get_user_sessions(username: str, type: str):
 @app.get("/get-sessions/{username}")
 def getSessions(username):
     return getSessionData(username)
-
-# Login Path. Used to login to the system
-
-@app.post("/login-user")
-def loginUser(user: UserLogin):
-    return login(user)
 
 # Register Path. Used to Register a new user in the system
 

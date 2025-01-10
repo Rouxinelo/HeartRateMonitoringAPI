@@ -2,28 +2,31 @@ import sqlite3
 from dataModels import *
 from databaseOutputParser import *
 import logging
+import hashlib
+import os
 
 logger = logging.getLogger('uvicorn.error')
 logger.setLevel(logging.DEBUG)
 
-# Login - Its simplified and would be better to develop a more complex version in the future 
 def attemptLogin(username, password):
     connection = sqlite3.connect("HeartRateMonitoring.sqlite3")
     cursor = connection.cursor()
     select_query = """
     SELECT * 
     FROM user 
-    WHERE username = ? 
-    AND password = ?
+    WHERE username = ?
     """
     
-    cursor.execute(select_query, (username, password))
+    cursor.execute(select_query, (username,))
     user = cursor.fetchone()
     connection.close()
-    if user:
+    if user and verifyPassword(user[5], password):
         return True
     else:
         return False
+    
+def verifyPassword(storedPassword, password):
+    return hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), storedPassword[:16], 100000) == storedPassword[16:]
     
 # Searching for user for login actions (see is the username or email are already registered before moving on)
 def searchForUserWithEmail(email):

@@ -7,7 +7,6 @@ def parseUserOutput(user):
              firstName= user[1], 
              lastName= user[2], 
              age= getUserAgeFromDate(user[4]), 
-             password= user[5], 
              gender=user[6])
     
 def getUserAgeFromDate(date):

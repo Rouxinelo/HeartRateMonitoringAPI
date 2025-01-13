@@ -10,7 +10,7 @@ def parseUserOutput(user):
              gender=user[6])
     
 def getUserAgeFromDate(date):
-    dateFormat = "%d-%m-%Y"
+    dateFormat = "%d/%m/%Y"
     birthDate = datetime.strptime(date, dateFormat)
     today = datetime.today()
     age = today.year - birthDate.year - ((today.month, today.day) < (birthDate.month, birthDate.day))

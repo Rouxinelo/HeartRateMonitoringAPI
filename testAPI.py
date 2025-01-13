@@ -1,10 +1,17 @@
 from utils import *
+from fastapi import Header
 
 app = FastAPI()
 event_queue = asyncio.Queue()
 
 sessionTokens = {}
 lock = Lock()
+
+# Check if device token if valid 
+
+def isTokenValid(username: str, device_token: str):
+    with lock:
+        return sessionTokens.get(username) == device_token
 
 # Main Path, Unavailable
 
@@ -17,20 +24,39 @@ def index():
 @app.post("/login-user")
 def loginUser(user: UserLogin):
     if login(user):
-        token = generateLoginToken()
-        sessionTokens[user.username] = token
-        return PostResponse(statusCode=200, message="LOGIN_OK")
-    return PostResponse(statusCode=400, message="LOGIN_FAIL")
+        with lock:
+            if user.username in sessionTokens:
+                return LoginResponse(statusCode=400, message="ALREADY_LOGGED", deviceToken="") 
+            token = generateLoginToken()
+            logger.debug(f"Device-Token: {token}")
+            sessionTokens[user.username] = token
+        return LoginResponse(statusCode=200, message="LOGIN_OK", deviceToken=token)
+    return LoginResponse(statusCode=400, message="LOGIN_FAIL", deviceToken="")
+
+# Logout Path. Used to logout
+
+@app.post("/logout-user")
+def logoutUser(user: UserLogout, device_token: str = Header(...)):
+    if not isTokenValid(user.username, device_token):
+        return PostResponse(statusCode=400, message="INVALID_TOKEN")
+    logger.debug(f"Device-Token: {device_token}")
+    with lock: 
+        sessionTokens.pop(user.username, None)
 
 # Get User Data Path. Used to get the user's Data after login
 
 @app.get("/get-user/{username}")
-def getUser(username):
+def getUser(username, device_token: str = Header(...)):
+    logger.debug(f"Device-Token: {device_token}")
+    if not isTokenValid(username, device_token):
+        return PostResponse(statusCode=400, message="INVALID_TOKEN")
     return getUserData(username)
 
 # User Sessions Path. Used to get the sessions a user signed in
 @app.get("/get-user-sessions/{username}/{type}")
-async def get_user_sessions(username: str, type: str):
+async def get_user_sessions(username: str, type: str, device_token: str = Header(...)):
+    if not isTokenValid(username, device_token):
+        return PostResponse(statusCode=400, message="INVALID_TOKEN")
     return getUserSessions(username, type)
 
 # Get Sessions Path. Used to get all the sessions a user is not signed in 
@@ -53,22 +79,30 @@ async def sendHeartbeatInfo(info: HeartbeatInfo):
 
 # Sign in session 
 @app.post("/session-sign-in/")
-def signInSession(sessionSignData: SessionSignData):
+def signInSession(sessionSignData: SessionSignData, device_token: str = Header(...)):
+    if not isTokenValid(username, device_token):
+        return PostResponse(statusCode=400, message="INVALID_TOKEN")
     return saveSignInSession(sessionSignData)
 
 # Sign out session
 @app.post("/session-sign-out/")
-def signOutSession(sessionSignData: SessionSignData):
+def signOutSession(sessionSignData: SessionSignData, device_token: str = Header(...)):
+    if not isTokenValid(sessionSignData.username, device_token):
+        return PostResponse(statusCode=400, message="INVALID_TOKEN")
     return saveSignOutSession(sessionSignData)
 
 # Session summary. Used to send the session summary to the server
 @app.post("/session-summary/")
-def sendSessionSummary(sessionSummaryData: SessionSummaryData):
+def sendSessionSummary(sessionSummaryData: SessionSummaryData, device_token: str = Header(...)):
+    if not isTokenValid(sessionSummaryData.username, device_token):
+        return PostResponse(statusCode=400, message="INVALID_TOKEN")
     return sendSessionSummaryData(sessionSummaryData.sessionId, sessionSummaryData.username, sessionSummaryData.measurements)
 
 # Get Session Summary. Used to get the session summary for a previous session
 @app.post("/get-session-summary/")
-def getSessionSummary(sessionSignData: SessionSignData):
+def getSessionSummary(sessionSignData: SessionSignData, device_token: str = Header(...)):
+    if not isTokenValid(sessionSignData.username, device_token):
+        return PostResponse(statusCode=400, message="INVALID_TOKEN")
     return getSessionSummaryData(sessionSignData)
 
 # Get Session Operation. Used to see if user logs in or out of a session 

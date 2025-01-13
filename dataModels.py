@@ -6,6 +6,9 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
+class UserLogout(BaseModel):
+    username: str
+
 class RegisterUser(BaseModel):
     username: str
     password: str
@@ -49,6 +52,11 @@ class SessionUsers(BaseModel):
 class PostResponse(BaseModel):
     statusCode: int
     message: str
+
+class LoginResponse(BaseModel):
+    statusCode: int
+    message: str
+    deviceToken: str
 
 class SessionSignData(BaseModel):
     username: str

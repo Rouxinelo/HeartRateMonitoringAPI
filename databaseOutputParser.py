@@ -32,7 +32,8 @@ def parseSessionSummaryOutput(session, sessionSummary):
                                count=sessionSummary[2], 
                                average= sessionSummary[3], 
                                maximum= sessionSummary[4], 
-                               minimum= sessionSummary[5])
+                               minimum= sessionSummary[5],
+                               hrv= sessionSummary[6])
 
 # Used to get a date string
 def getCurrentTimeStamp():

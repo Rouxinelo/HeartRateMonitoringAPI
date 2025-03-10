@@ -40,28 +40,15 @@ def addToSessionSigning(sessionId, username):
     connection.close()
     return cursor.rowcount != 0
 
-def addToSessionData(sessionId, username, secondsTimeStamp, heartRate):
+def addToSessionSummary(sessionId, username, count, average, maximum, minimum, hrv):
     connection = sqlite3.connect("HeartRateMonitoring.sqlite3")
     cursor = connection.cursor()
     insert_query = """
-    INSERT INTO sessionData (sessionId, username, secondsTimeStamp, heartRate)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO sessionSummary (sessionId, username, count, average, maximum, minimum, hrv)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
     """
 
-    cursor.execute(insert_query, (sessionId, username, secondsTimeStamp, heartRate))
-    connection.commit()
-    connection.close()
-    return cursor.rowcount != 0
-
-def addToSessionSummary(sessionId, username, count, average, maximum, minimum):
-    connection = sqlite3.connect("HeartRateMonitoring.sqlite3")
-    cursor = connection.cursor()
-    insert_query = """
-    INSERT INTO sessionSummary (sessionId, username, count, average, maximum, minimum)
-    VALUES (?, ?, ?, ?, ?, ?)
-    """
-
-    cursor.execute(insert_query, (sessionId, username, count, average, maximum, minimum))
+    cursor.execute(insert_query, (sessionId, username, count, average, maximum, minimum, hrv))
     connection.commit()
     connection.close()
     return cursor.rowcount != 0
@@ -79,19 +66,6 @@ def removeFromSessionSigning(sessionId, username):
     connection.commit()
     connection.close()
     return cursor.rowcount != 0
-        
-def addToHeartRateInfo(sessionId, username, heartRate, timeStamp):
-    connection = sqlite3.connect("HeartRateMonitoring.sqlite3")
-    cursor = connection.cursor()
-    insert_query = """
-    INSERT INTO sessionData (sessionId, username, timestamp, heartRate)
-    VALUES (?, ?, ?, ?)
-    """
-
-    cursor.execute(insert_query, (sessionId, username, timeStamp, heartRate))
-    connection.commit()
-    connection.close()
-    return cursor.rowcount != 0    
 
 def changePassword(username, newPassword):
     connection = sqlite3.connect("HeartRateMonitoring.sqlite3")

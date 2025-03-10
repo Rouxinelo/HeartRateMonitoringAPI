@@ -51,12 +51,6 @@ def getUserData(username):
         return user
     return False
 
-# HEARTRATE INFO #
-
-def saveHeartbeatInfo(info: HeartbeatInfo):
-    logger.debug(f'{info.heartRate}')
-    return addToHeartRateInfo(info.sessionId, info.username, info.heartRate, info.timeStamp)
-
 # GET SESSIONS #
 
 def getUserSessions(username, type):
@@ -89,8 +83,8 @@ def getSession(sessionId: str):
 
 # SEND SUMMARY #
 
-def sendSessionSummaryData(sessionId, username, measurements):
-    addToSessionSummary(sessionId, username, len(measurements), int(average(measurements)), max(measurements), min(measurements))
+def sendSessionSummaryData(sessionId, username, measurements, hrv):
+    addToSessionSummary(sessionId, username, len(measurements), int(average(measurements)), max(measurements), min(measurements), hrv)
 
 def average(arr):
     return sum(arr) / len(arr)
@@ -106,12 +100,11 @@ def sendRecoveryEmailToUser(username, code, languageCode):
         return PostResponse(statusCode=400, message="EMAIL_NOT_SENT")
 
 def changeUserPassword(username, newPassword):
-    if changePassword(username, newPassword) != 0:
+    if changePassword(username, getEncryptedPassword(newPassword)) != 0:
         return PostResponse(statusCode=200, message="CHANGE_PASS_OK")
     return PostResponse(statusCode=400, message="CHANGE_PASS_FAIL")
 
 ## TEACHER ##
-
 
 # Session Creation 
 def createNewSession(sessionCreationData):

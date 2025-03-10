@@ -33,16 +33,6 @@ CREATE TABLE IF NOT EXISTS sessionSigning (
    FOREIGN KEY (sessionId) REFERENCES session(sessionId)
 );
 
-CREATE TABLE IF NOT EXISTS sessionData (
-   sessionId INTEGER,
-   username TEXT,
-   timestamp TEXT,
-   heartRate INTEGER,
-   PRIMARY KEY (sessionId, username, timestamp),
-   FOREIGN KEY (username) REFERENCES user(username),
-   FOREIGN KEY (sessionId) REFERENCES session(sessionId)
-);
-
 CREATE TABLE IF NOT EXISTS sessionSummary (
    sessionId INTEGER,
    username TEXT,
@@ -50,6 +40,7 @@ CREATE TABLE IF NOT EXISTS sessionSummary (
    average INTEGER,
    maximum INTEGER,
    minimum INTEGER,
+   hrv INTEGER,
    PRIMARY KEY (sessionId, username),
    FOREIGN KEY (username) REFERENCES user(username),
    FOREIGN KEY (sessionId) REFERENCES session(sessionId)

@@ -13,7 +13,7 @@ The Heart Rate Monitoring API is a FastAPI-based system that allows users (patie
 
 ### 1. Clone the Project
 ```bash
-git clone https://github.com/yourusername/heart-rate-api.git
+git clone https://github.com/Rouxinelo/HeartRateMonitoringAPI.git
 cd heart-rate-api
 ```
 
@@ -43,10 +43,7 @@ Once the server is running, access the API documentation using Redoc:
 
 Alternatively, you can also view the Swagger UI:
 - [Swagger UI](http://127.0.0.1:8000/docs)
-
-## License
-This project is licensed under the MIT License.
-
+  
 ---
 Feel free to modify and improve the project. Contributions are welcome!
 

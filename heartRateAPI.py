@@ -219,11 +219,10 @@ async def get_user_sessions(username: str, type: str, device_token: str = Header
     ]
     """
 )
-def getSessions(username):
-  if not isTokenValid(user.username, device_token) and username != "":
-      return PostResponse(statusCode=400, message="INVALID_TOKEN")
-  return getSessionData(username)
-
+def getSessions(username: str, device_token: Optional[str] = Header(None)):
+    if (username != "Guest" and not isTokenValid(username, device_token)) or (username != "Guest" and not device_token):
+        return PostResponse(statusCode=400, message="INVALID_TOKEN")
+    return getSessionData(username)
 
 @app.post(
     "/register-user",

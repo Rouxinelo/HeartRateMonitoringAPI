@@ -100,7 +100,6 @@ def loginUser(user: UserLogin):
 def logoutUser(user: UserLogout, device_token: str = Header(...)):
     if not isTokenValid(user.username, device_token):
         return PostResponse(statusCode=400, message="INVALID_TOKEN")
-    logger.debug(f"Device-Token: {device_token}")
     with lock: 
         sessionTokens.pop(user.username, None)
 
@@ -221,7 +220,9 @@ async def get_user_sessions(username: str, type: str, device_token: str = Header
     """
 )
 def getSessions(username):
-    return getSessionData(username)
+  if not isTokenValid(user.username, device_token) and username != "":
+      return PostResponse(statusCode=400, message="INVALID_TOKEN")
+  return getSessionData(username)
 
 
 @app.post(

@@ -133,12 +133,36 @@ def searchForSession(sessionId):
         cursor.execute(select_query, (sessionId,))
         session = cursor.fetchone()
         if session:
-            return parseSessionOutput(session, getNumberOfUsersInSession(sessionId))
+            return parseSessionOutput(session, getNumberOfUsersInSession(sessionId), getTeacherName(session[2]))
         else:
             return None
     except sqlite3.Error as e:
         logger.error(f"Database error in searchForSession: {e}")
         return None
+    finally:
+        if connection:
+            connection.close()
+
+def searchForTeacherName(username):
+    connection = None
+    try:
+        connection = sqlite3.connect("HeartRateMonitoring.sqlite3")
+        cursor = connection.cursor()
+        select_query = """
+            SELECT name
+            FROM teacher
+            WHERE username = ?
+            """
+        
+        cursor.execute(select_query, (username,))
+        name = cursor.fetchone()
+        if name:
+            return name[0]
+        else:
+            return username
+    except sqlite3.Error as e:
+        logger.error(f"Database error in searchForSession: {e}")
+        return username
     finally:
         if connection:
             connection.close()
@@ -242,30 +266,6 @@ def searchForUserDetails(username):
     except sqlite3.Error as e:
         logger.error(f"Database error in searchForUserDetails: {e}")
         return None
-    finally:
-        if connection:
-            connection.close()
-
-def getNextSessionId():
-    connection = None
-    try:
-        connection = sqlite3.connect("HeartRateMonitoring.sqlite3")
-        cursor = connection.cursor()
-        select_query = """
-        SELECT sessionId
-        FROM session 
-        ORDER BY sessionId DESC
-        LIMIT 1
-        """
-
-        cursor.execute(select_query)
-        sessionId = cursor.fetchone()
-        if sessionId:      
-            return sessionId[0] + 1
-        return 1
-    except sqlite3.Error as e:
-        logger.error(f"Database error in getNextSessionId: {e}")
-        return 1
     finally:
         if connection:
             connection.close()

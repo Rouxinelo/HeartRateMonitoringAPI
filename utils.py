@@ -108,8 +108,7 @@ def changeUserPassword(username, newPassword):
 
 # Session Creation 
 def createNewSession(sessionCreationData):
-    sessionId = getNextSessionId()
-    if addSessionToDatabase(sessionId, sessionCreationData.name, sessionCreationData.teacher, sessionCreationData.description, sessionCreationData.date, sessionCreationData.hour, sessionCreationData.totalSpots) != 0:
+    if addSessionToDatabase(sessionCreationData.name, sessionCreationData.teacher, sessionCreationData.description, sessionCreationData.date, sessionCreationData.hour, sessionCreationData.totalSpots) != 0:
         return PostResponse(statusCode=200, message="CREATE_SESSION_OK")
     return PostResponse(statusCode=400, message="CREATE_SESSION_FAIL")
 

@@ -1,3 +1,4 @@
+-- User table
 CREATE TABLE IF NOT EXISTS user (
    username TEXT PRIMARY KEY,
    firstName TEXT NOT NULL,
@@ -8,13 +9,16 @@ CREATE TABLE IF NOT EXISTS user (
    gender TEXT NOT NULL
 );
 
+-- Teacher table
 CREATE TABLE IF NOT EXISTS teacher (
-   name TEXT PRIMARY KEY,
+   username TEXT PRIMARY KEY,
+   name TEXT NOT NULL,
    password TEXT NOT NULL
 );
 
+-- Session table with auto-incrementing sessionId
 CREATE TABLE IF NOT EXISTS session (
-   sessionId INTEGER PRIMARY KEY,
+   sessionId INTEGER PRIMARY KEY AUTOINCREMENT, -- Auto-incrementing primary key
    name TEXT NOT NULL,
    teacher TEXT NOT NULL,
    description TEXT,
@@ -22,9 +26,10 @@ CREATE TABLE IF NOT EXISTS session (
    hour INTEGER NOT NULL,
    spots INTEGER NOT NULL,
    isActive INTEGER DEFAULT 0,
-   FOREIGN KEY (teacher) REFERENCES teacher(name)
+   FOREIGN KEY (teacher) REFERENCES teacher(username)
 );
 
+-- SessionSigning table
 CREATE TABLE IF NOT EXISTS sessionSigning (
    sessionId INTEGER NOT NULL,
    username TEXT NOT NULL,
@@ -33,13 +38,14 @@ CREATE TABLE IF NOT EXISTS sessionSigning (
    FOREIGN KEY (sessionId) REFERENCES session(sessionId)
 );
 
+-- SessionSummary table
 CREATE TABLE IF NOT EXISTS sessionSummary (
    sessionId INTEGER,
    username TEXT,
-   count INTEGER,
-   average INTEGER,
-   maximum INTEGER,
-   minimum INTEGER,
+   hrCount INTEGER,
+   hrAverage INTEGER,
+   hrMaximum INTEGER,
+   hrMinimum INTEGER,
    hrv INTEGER,
    PRIMARY KEY (sessionId, username),
    FOREIGN KEY (username) REFERENCES user(username),

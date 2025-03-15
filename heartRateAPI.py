@@ -1,5 +1,6 @@
 from utils import *
 from fastapi import Header
+from typing import Optional
 
 app = FastAPI()
 event_queue = asyncio.Queue()

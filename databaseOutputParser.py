@@ -16,12 +16,12 @@ def getUserAgeFromDate(date):
     age = today.year - birthDate.year - ((today.month, today.day) < (birthDate.month, birthDate.day))
     return age
 
-def parseSessionOutput(session, filledSpots):
+def parseSessionOutput(session, filledSpots, teacherName):
     return Session(id= str(session[0]), 
                    name= session[1], 
                    date= session[4], 
                    hour= str(session[5]), 
-                   teacher= session[2], 
+                   teacher= teacherName, 
                    totalSpots= session[6], 
                    filledSpots= filledSpots, 
                    description= session[3], 

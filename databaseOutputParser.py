@@ -1,74 +1,92 @@
 from dataModels import *
-from datetime import datetime
+from commons import *
 
 def parseUserOutput(user): 
-    return UserData(username=user[0], 
-             email= user[3], 
-             firstName= user[1], 
-             lastName= user[2], 
-             age= getUserAgeFromDate(user[4]), 
-             gender=user[6])
-    
-def getUserAgeFromDate(date):
-    dateFormat = "%d/%m/%Y"
-    birthDate = datetime.strptime(date, dateFormat)
-    today = datetime.today()
-    age = today.year - birthDate.year - ((today.month, today.day) < (birthDate.month, birthDate.day))
-    return age
+    """
+    Parses raw user data into a `UserData` object.
+
+    Parameters:
+        user (list or tuple): A list or tuple containing user data in the following order:
+            - username (str): The username of the user.
+            - firstName (str): The first name of the user.
+            - lastName (str): The last name of the user.
+            - email (str): The email address of the user.
+            - dateOfBirth (str): The date of birth of the user in the format "dd/mm/yyyy".
+            - gender (str): The gender of the user.
+
+    Returns:
+        UserData: An object containing the parsed user data.
+
+    Example:
+        user_data = parseUserOutput(("example123", "Example", "Name", "example.email@example.com", "01/01/1990", "M"))
+    """
+    return UserData(
+        username=user[0],
+        email=user[3],
+        firstName=user[1],
+        lastName=user[2],
+        age=getUserAgeFromDate(user[4]),
+        gender=user[6]
+    )
 
 def parseSessionOutput(session, filledSpots, teacherName):
-    return Session(id= str(session[0]), 
-                   name= session[1], 
-                   date= session[4], 
-                   hour= str(session[5]), 
-                   teacher= teacherName, 
-                   totalSpots= session[6], 
-                   filledSpots= filledSpots, 
-                   description= session[3], 
-                   isActive= session[7])
+    """
+    Parses raw session data into a `Session` object.
+
+    Parameters:
+        session (list or tuple): A list or tuple containing session data in the following order:
+            - id (int): The ID of the session.
+            - name (str): The name of the session.
+            - date (str): The date of the session.
+            - hour (str): The hour of the session.
+            - totalSpots (int): The total number of spots available in the session.
+            - description (str): A description of the session.
+            - isActive (int): A flag indicating whether the session is active (1) or inactive (-1).
+        filledSpots (int): The number of spots already filled in the session.
+        teacherName (str): The name of the teacher conducting the session.
+
+    Returns:
+        Session: An object containing the parsed session data.
+
+    Example:
+        session_data = parseSessionOutput((1, "Pilates", "2023-10-15", "10", 20, "Simple Pilates", 1), 15, "Example123")
+    """
+    return Session(
+        id=str(session[0]),
+        name=session[1],
+        date=session[4],
+        hour=str(session[5]),
+        teacher=teacherName,
+        totalSpots=session[6],
+        filledSpots=filledSpots,
+        description=session[3],
+        isActive=session[7]
+    )
 
 def parseSessionSummaryOutput(session, sessionSummary):
-    return PreviousSessionData(session=session, 
-                               count=sessionSummary[2], 
-                               average= sessionSummary[3], 
-                               maximum= sessionSummary[4], 
-                               minimum= sessionSummary[5],
-                               hrv= sessionSummary[6])
+    """
+    Parses raw session summary data into a `PreviousSessionData` object.
 
-# Used to get a date string
-def getCurrentTimeStamp():
-    return datetime.now().isoformat(timespec="seconds")
+    Parameters:
+        session (Session): A `Session` object representing the session.
+        sessionSummary (list or tuple): A list or tuple containing session summary data in the following order:
+            - count (int): The count of heart rate measurements.
+            - average (int): The average heart rate.
+            - maximum (int): The maximum heart rate.
+            - minimum (int): The minimum heart rate.
+            - hrv (int): The heart rate variability.
 
-def isJoinable(type, date):
-    return type == "joinable" and userCanJoin(date)
+    Returns:
+        PreviousSessionData: An object containing the parsed session summary data.
 
-def isPrevious(type, date):
-    return type == "previous" and userCanSeeSummary(date)
-
-def isSignOut(type, date):
-    return type == "signed" and userSignOut(date)
-
-def userCanJoin(dateStr):
-    date = datetime.strptime(dateStr, "%d-%m-%Y")
-    today = datetime.today().date()
-    return date.date() == today
-
-def userCanSeeSummary(date_str):
-    date = datetime.strptime(date_str, "%d-%m-%Y")
-    today = datetime.today().date()
-    return date.date() <= today
-
-def userSignOut(date_str):
-    date = datetime.strptime(date_str, "%d-%m-%Y")
-    today = datetime.today().date()
-    return date.date() > today
-
-def isPastDate(date_str):
-    date = datetime.strptime(date_str, "%d-%m-%Y")
-    today = datetime.today().date()
-    return date.date() < today
-
-def isToday(date_str):
-    date = datetime.strptime(date_str, "%d-%m-%Y")
-    today = datetime.today().date()
-    return date.date() == today
+    Example:
+        summary_data = parseSessionSummaryOutput(session, (100, 75, 120, 60, 50))
+    """
+    return PreviousSessionData(
+        session=session,
+        count=sessionSummary[2],
+        average=sessionSummary[3],
+        maximum=sessionSummary[4],
+        minimum=sessionSummary[5],
+        hrv=sessionSummary[6]
+    )

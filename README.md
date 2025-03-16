@@ -59,7 +59,7 @@ $Number Of Workers=2*Number Of CPU Cores+1$
    Use the `--ssl-keyfile` and `--ssl-certfile` options to specify the private key and certificate:
    ```bash
    uvicorn heartRateAPI:app --host 0.0.0.0 --port 443 --ssl-keyfile key.pem --ssl-certfile cert.pem
-
+   ```
    (Port 443 is preffered here as it's usually the default HTTPS port)
    
 ## API Documentation

@@ -5,7 +5,7 @@ The Heart Rate Monitoring API is a FastAPI-based system that allows users (patie
 
 ## Features
 - User roles: Patients and Tutors
-- Session management (view, sign up, and join)
+- Session management (view, sign up, create, cancel and join)
 - Real-time heart rate and HRV data submission
 - FastAPI-based architecture
 

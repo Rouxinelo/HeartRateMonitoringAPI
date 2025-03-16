@@ -45,6 +45,22 @@ To identify the optimal number of workers you may use the following formula:
 
 $Number Of Workers=2*Number Of CPU Cores+1$
 
+### HTTPS Server
+**WARNING:** The command above creates an HTTP server. To create an HTTPS server, follow these steps:
+
+1. **Generate or Obtain SSL/TLS Certificates**:
+   - Use a trusted Certificate Authority (CA) like Let's Encrypt for production.
+   - For testing, you can generate a self-signed certificate:
+     ```bash
+     openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+     ```
+     This will generate two files: `key.pem` (private key) and `cert.pem` (SSL certificate).
+
+2. **Run the Server with HTTPS**:
+   Use the `--ssl-keyfile` and `--ssl-certfile` options to specify the private key and certificate:
+   ```bash
+   uvicorn heartRateAPI:app --host 0.0.0.0 --port 443 --ssl-keyfile key.pem --ssl-certfile cert.pem
+   
 ## API Documentation
 Once the server is running, access the API documentation using Redoc:
 - [Redoc Documentation](http://127.0.0.1:8000/redoc)

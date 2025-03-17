@@ -4,9 +4,11 @@ from databaseOutputParser import *
 import logging
 import hashlib
 import os
+from argon2 import PasswordHasher
 
 logger = logging.getLogger('uvicorn.error')
 logger.setLevel(logging.DEBUG)
+ph = PasswordHasher()
 
 def attemptLogin(username, password):
     connection = None
@@ -32,8 +34,27 @@ def attemptLogin(username, password):
         if connection:
             connection.close()
 
-def verifyPassword(storedPassword, password):
-    return hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), storedPassword[:16], 100000) == storedPassword[16:]
+def verifyPassword(stored_password: str, password: str):
+    """
+    Verifies a password against a stored Argon2 hash.
+
+    Parameters:
+        stored_password (str): The stored hashed password.
+        password (str): The password to verify.
+
+    Returns:
+        bool: True if the password matches, False otherwise.
+
+    Example:
+        stored_password = getEncryptedPassword("password123")
+        is_valid = verifyPassword(storedPassword123, "password123")
+    """
+    if not password or not stored_password:
+        raise ValueError("Password and stored password cannot be empty")
+    try:
+        return ph.verify(stored_password, password)
+    except Exception:
+        return False
     
 def searchForUserWithEmail(email):
     connection = None

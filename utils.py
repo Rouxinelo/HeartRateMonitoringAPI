@@ -14,8 +14,6 @@ from dataModels import *
 from databaseDataSelect import *
 from emailSender import *
 
-## USER ##
-
 # LOGIN #
 
 def login(user: UserLogin):
@@ -441,19 +439,19 @@ def generateLoginToken():
     return secrets.token_hex(32)
 
 # Password Encryption
-def getEncryptedPassword(password):
+def getEncryptedPassword(password: str):
     """
-    Encrypts a password using a salt and PBKDF2-HMAC-SHA256.
+    Encrypts a password using Argon2.
 
     Parameters:
         password (str): The password to encrypt.
 
     Returns:
-        bytes: The encrypted password.
+        str: The hashed password, including the salt and parameters.
 
     Example:
         encrypted_password = getEncryptedPassword("password123")
     """
-    salt = os.urandom(16)
-    hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
-    return salt + hashed_password
+    if not password:
+        raise ValueError("Password cannot be empty")
+    return ph.hash(password)

@@ -13,6 +13,13 @@ router = APIRouter(prefix="")
 # Token Expiration (login tokens are valid for 15 minutes after last use)
 TOKEN_EXPIRATION = 15 * 60
 
+def isTokenExpired(username: str):
+	with lock:
+    if username in sessionTokens and sessionTokens[username] == deviceToken:
+      if time.time() > tokenExpireTime.get(username, 0):
+        return true
+    return False
+
 def isTokenValid(username: str, deviceToken: str):
     """
     Validates a session token for a given username.
@@ -38,17 +45,12 @@ def isTokenValid(username: str, deviceToken: str):
         print(is_valid)  # Output: False
     """
     with lock:
-        # Clean up expired tokens
         removeExpiredTokens()
-
-        # Check if the token exists and is not expired
         if username in sessionTokens and sessionTokens[username] == deviceToken:
             if time.time() < tokenExpireTime.get(username, 0):
-                # Renew the token's expiration time
                 tokenExpireTime[username] = time.time() + TOKEN_EXPIRATION
                 return True
             else:
-                # Token has expired, remove it
                 del sessionTokens[username]
                 del tokenExpireTime[username]
         return False

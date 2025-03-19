@@ -15,10 +15,10 @@ TOKEN_EXPIRATION = 15 * 60
 
 def isTokenExpired(username: str):
 	with lock:
-    if username in sessionTokens and sessionTokens[username] == deviceToken:
-      if time.time() > tokenExpireTime.get(username, 0):
-        return true
-    return False
+		if username in sessionTokens and sessionTokens[username] == deviceToken:
+			if time.time() > tokenExpireTime.get(username, 0):
+				return True
+		return False
 
 def isTokenValid(username: str, deviceToken: str):
     """

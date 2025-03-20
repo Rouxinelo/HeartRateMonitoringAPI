@@ -872,6 +872,12 @@ def closeSession(sessionCloseData: SessionCloseData):
 				return PostResponse(statusCode=200, message="SESSION_CLOSE_OK")
 		return PostResponse(statusCode=400, message="SESSION_CLOSE_FAIL")
 
+async def event_stream(sessionId):
+    while True:
+        data = await event_queue.get()
+        if data.sessionId == sessionId:
+            yield data.json()
+						
 @router.get(
 		"/session/{sessionId}",
 		summary="SSE Session",

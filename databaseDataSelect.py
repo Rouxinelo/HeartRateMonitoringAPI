@@ -154,7 +154,7 @@ def searchForSession(sessionId):
         cursor.execute(select_query, (sessionId,))
         session = cursor.fetchone()
         if session:
-            return parseSessionOutput(session, getNumberOfUsersInSession(sessionId), getTeacherName(session[2]))
+            return parseSessionOutput(session, getNumberOfUsersInSession(sessionId), searchForTeacherName(session[2]))
         else:
             return None
     except sqlite3.Error as e:
@@ -299,7 +299,7 @@ def isTeacher(name, password):
         select_query = """
         SELECT * 
         FROM teacher 
-        WHERE name = ? 
+        WHERE username = ? 
         AND password = ?
         """
 

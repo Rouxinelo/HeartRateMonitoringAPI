@@ -1,6 +1,8 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.message import EmailMessage
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 EMAIL = "Insert your email here"
 APP_PASS = "Insert your email app password here"
@@ -18,11 +20,11 @@ def sendRecoveryEmail(senderEmail, appLoginCode, receiverEmail, code, languageCo
 
 # Message
 def getRecoveryMessage(senderEmail, receiverEmail, code, languageCode, name):
-    message = EmailMessage()
+    message = MIMEMultipart()
     message['Subject'] = getRecoverySubject(languageCode, code)
     message['From'] = senderEmail
     message['To'] = receiverEmail
-    message.set_content(getRecoveryContent(languageCode, code, name))
+    message.attach(MIMEText(getRecoveryContent(languageCode, code, name), 'html'))
     return message
 
 # Subject
@@ -44,10 +46,24 @@ def getRecoveryContent(languageCode, code, name):
     return getPortugueseContent(code, name)
 
 def getPortugueseContent(code, name):
-    return f'Olá {name}.\nO codigo de recuperação de palavra passe é {code}.\nNão partilho o código com ninguém, e se não o pediu, ignore o mesmo.'
+    return (
+        f"<p>Olá {name}!</p>"
+        f"<p>O código de recuperação de palavra-passe é: <b>{code}</b>.</p>"
+        "<p>Este código tem a validade de <b>4 minutos</b>.</p>"
+        "<p><b>Atenção:</b> Por segurança, não partilhe este código com ninguém.</p>"
+        "<p>Se não pediu nenhum código, ignore este e-mail.</p>"
+        "<p>Cumprimentos,<br>A Equipa de Suporte da HeartRateMonitoringApp</p>"
+    )
 
 def getEnglishContent(code, name):
-    return f'Hello {name}.\nThe password recovery code you requested is {code}.\nDo not share this code with anyone, and if you did not request it, ignore this email.'
+    return (
+        f"<p>Hello {name},</p>"
+        f"<p>Your password recovery code is: <b>{code}</b>.</p>"
+        "<p>This code is valid for <b>4 minutes</b>.</p>"
+        "<p><b>Important:</b> For security reasons, do not share this code with anyone.</p>"
+        "<p>If you did not request this code, please ignore this email.</p>"
+        "<p>Best regards,<br>The Support Team</p>"
+    )
 
 ############## Session Canceled Email ##############
 def sendCancelationEmail(senderEmail, appLoginCode, receiverEmail, name, session):
@@ -62,11 +78,11 @@ def sendCancelationEmail(senderEmail, appLoginCode, receiverEmail, name, session
 
 # Message
 def getCancelMessage(senderEmail, receiverEmail, name, session):
-    message = EmailMessage()
+    message = MIMEMultipart()
     message['Subject'] = getCancelSubject()
     message['From'] = senderEmail
     message['To'] = receiverEmail
-    message.set_content(getCancelContent(name, session))
+    msg.attach(MIMEText(getCancelContent(name, session)))
     return message
 
 # Subject
@@ -75,7 +91,12 @@ def getCancelSubject():
 
 # Content
 def getCancelContent(name, session):
-    return f'PT: Olá {name}!\nA sessão {session.name}, do dia {session.date} às {session.hour} foi cancelada pelo professor responsável.\n\nEN: Hello {name}!\nThe session {session.name}, scheduled for {session.date} at {session.hour} was canceled by its responsible teacher.'
+    return (
+        f"<p>Olá {name}!</p>"
+        f"<p>A sessão <b>{session.name}</b>, do dia <b>{session.date}</b> às <b>{session.hour}</b>, foi cancelada pelo professor responsável.</p>"
+        "<p>Lamentamos o inconveniente e agradecemos a sua compreensão.</p>"
+        "<p>Cumprimentos,<br>A Equipa de Suporte da HeartRateMonitoringApp</p>"
+    )
 
 ############## Session Start Email ##############
 def sendSessionStartEmail(senderEmail, appLoginCode, receiverEmail, name, session, zoomId, zoomPassword):
@@ -90,11 +111,11 @@ def sendSessionStartEmail(senderEmail, appLoginCode, receiverEmail, name, sessio
 
 # Message
 def getSessionStartMessage(senderEmail, receiverEmail, name, session, zoomId, zoomPassword):
-    message = EmailMessage()
+    message = MIMEMultipart()
     message['Subject'] = getSessionStartSubject()
     message['From'] = senderEmail
     message['To'] = receiverEmail
-    message.set_content(getSessionStartContent(name, session, zoomId, zoomPassword))
+    msg.attach(MIMEText(getSessionStartContent(name, session, zoomId, zoomPassword)))
     return message
 
 # Subject
@@ -103,4 +124,10 @@ def getSessionStartSubject():
 
 # Content
 def getSessionStartContent(name, session, zoomId, zoomPassword):
-    return f'PT: Olá {name}!\nA sessão {session.name}  foi iniciada pelo professor responsável. Junte-se à chamada Zoom com os dados abaixo.\n\nEN: Hello {name}!\nThe session {session.name} was started by its responsible teacher. Join the Zoom call listed below. \n\n\nZoom Call Id: {zoomId}\nZoom Call Password: {zoomPassword}'
+    return (
+        f"<p>Olá {name}!</p>"
+        f"<p>A sessão <b>{session.name}</b> foi iniciada pelo professor responsável. Junte-se à chamada Zoom com os dados abaixo.</p>"
+        f"<p><b>ID da chamada Zoom:</b> {zoomId}</p>"
+        f"<p><b>Senha da chamada Zoom:</b> {zoomPassword}</p>"
+        "<p>Cumprimentos,<br>A Equipa de Suporte da HeartRateMonitoringApp</p>"
+    )

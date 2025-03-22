@@ -1,6 +1,8 @@
 from utils import *
 from fastapi import APIRouter, Header
 from typing import Optional
+import time
+from datetime import datetime, timedelta
 
 event_queue = asyncio.Queue()
 
@@ -14,11 +16,20 @@ router = APIRouter(prefix="")
 TOKEN_EXPIRATION = 15 * 60
 
 def isTokenExpired(username: str):
-	with lock:
-		if username in sessionTokens and sessionTokens[username] == deviceToken:
-			if time.time() > tokenExpireTime.get(username, 0):
-				return True
-		return False
+    """
+    Checks if the token for the given username has expired.
+
+    Parameters:
+        username (str): The username to check.
+
+    Returns:
+        bool: True if the token has expired, False otherwise.
+    """
+    with lock:
+        if username in sessionTokens:
+            if time.time() > tokenExpireTime.get(username, 0):
+                return True
+        return False
 
 def isTokenValid(username: str, deviceToken: str):
     """
@@ -123,15 +134,16 @@ def index():
 		"""
 )
 def loginUser(user: UserLogin):
-		if login(user):
-				with lock:
-						if user.username in sessionTokens and not isTokenExpired(user.username):
-								return LoginResponse(statusCode=400, message="ALREADY_LOGGED", deviceToken="") 
-						token = generateLoginToken()
-						sessionTokens[user.username] = token
-						tokenExpireTime[user.username] = time.time() + TOKEN_EXPIRATION
-				return LoginResponse(statusCode=200, message="LOGIN_OK", deviceToken=token)
-		return LoginResponse(statusCode=400, message="LOGIN_FAIL", deviceToken="")
+    if login(user):
+        with lock:
+            if user.username in sessionTokens and not isTokenExpired(user.username):
+                return LoginResponse(statusCode=400, message="ALREADY_LOGGED", deviceToken="") 
+            token = generateLoginToken()
+            sessionTokens[user.username] = token
+            tokenExpireTime[user.username] = time.time() + TOKEN_EXPIRATION
+            logger.debug(f"Device-Token: {time.time() + TOKEN_EXPIRATION}")
+        return LoginResponse(statusCode=200, message="LOGIN_OK", deviceToken=token)
+    return LoginResponse(statusCode=400, message="LOGIN_FAIL", deviceToken="")
 
 @router.post(
 		"/logout-user",
@@ -873,10 +885,19 @@ def closeSession(sessionCloseData: SessionCloseData):
 		return PostResponse(statusCode=400, message="SESSION_CLOSE_FAIL")
 
 async def event_stream(sessionId):
+    start_time = datetime.now()
+    timeout = timedelta(hours=1)  # 1-hour timeout
+
     while True:
-        data = await event_queue.get()
-        if data.sessionId == sessionId:
-            yield data.json()
+        if datetime.now() - start_time > timeout:
+            break
+        try:
+            data = await asyncio.wait_for(event_queue.get(), timeout=3600)
+            if data.sessionId == sessionId:
+                yield data
+        except asyncio.TimeoutError:
+            print("Timeout: No data received for 1 hour")
+            break
 						
 @router.get(
 		"/session/{sessionId}",

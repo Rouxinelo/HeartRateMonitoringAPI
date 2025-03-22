@@ -4,9 +4,9 @@ CREATE TABLE IF NOT EXISTS user (
    firstName TEXT NOT NULL,          -- User's first name
    lastName TEXT NOT NULL,           -- User's last name
    email TEXT NOT NULL,              -- User's email address
-   dateOfBirth TEXT NOT NULL,        -- User's date of birth (stored as TEXT)
+   dateOfBirth DATE NOT NULL,        -- User's date of birth (stored as TEXT)
    password TEXT NOT NULL,           -- User's password (hashed)
-   gender TEXT NOT NULL              -- User's gender
+   gender TEXT NOT NULL              -- User's gender (M = Male, F = Female)
 );
 
 -- Table to store teacher information
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS session (
    date DATE NOT NULL,                         -- Date of the session
    hour INTEGER NOT NULL,                      -- Hour of the session
    spots INTEGER NOT NULL,                      -- Number of available spots in the session
-   isActive INTEGER DEFAULT 0,                 -- Indicates if the session is active (0 = inactive, 1 = active)
+   isActive INTEGER DEFAULT 0,                 -- Indicates if the session is active (0 = inactive, 1 = active, -1 = finished)
    FOREIGN KEY (teacher) REFERENCES teacher(username) -- Relationship to the teacher table
 );
 

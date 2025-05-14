@@ -56,7 +56,6 @@ def isTokenValid(username: str, deviceToken: str):
         print(is_valid)  # Output: False
     """
     with lock:
-        removeExpiredTokens()
         if username in sessionTokens and sessionTokens[username] == deviceToken:
             if time.time() < tokenExpireTime.get(username, 0):
                 tokenExpireTime[username] = time.time() + TOKEN_EXPIRATION
@@ -177,7 +176,6 @@ def logoutUser(user: UserLogout, device_token: str = Header(...)):
 			return PostResponse(statusCode=400, message="INVALID_TOKEN")
 		with lock: 
 			del sessionTokens[username]
-			del tokenExpireTime[username]
 
 @router.get(
 		"/get-user/{username}",

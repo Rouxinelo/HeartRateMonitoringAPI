@@ -4,8 +4,8 @@ from email.message import EmailMessage
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-EMAIL = "Insert your email here"
-APP_PASS = "Insert your email app password here"
+EMAIL = "heartRateMonitoringAppEvora@gmail.com"
+APP_PASS = "hqoletnboermlyxf"
 
 ############## Email Recovery Methods ##############
 def sendRecoveryEmail(senderEmail, appLoginCode, receiverEmail, code, languageCode, name):

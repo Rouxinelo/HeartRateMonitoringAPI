@@ -882,19 +882,32 @@ def closeSession(sessionCloseData: SessionCloseData):
 				return PostResponse(statusCode=200, message="SESSION_CLOSE_OK")
 		return PostResponse(statusCode=400, message="SESSION_CLOSE_FAIL")
 
-async def event_stream(sessionId):
+async def event_stream(sessionId: str):
+    """Generator function for SSE stream with proper async handling"""
     start_time = datetime.now()
     timeout = timedelta(hours=1)  # 1-hour timeout
 
     while True:
+        # Check timeout
         if datetime.now() - start_time > timeout:
+            logger.debug(f"SSE connection timeout for session {sessionId}")
             break
+            
         try:
-            data = await asyncio.wait_for(event_queue.get(), timeout=3600)
+            # Get data with a short timeout to allow periodic checks
+            data = await asyncio.wait_for(event_queue.get(), timeout=1.0)
+            
             if data.sessionId == sessionId:
-                yield data
+                yield f"data: {data.json()}\n\n"
+                
+            # Add a small sleep to prevent tight loop
+            await asyncio.sleep(0.01)
+                
         except asyncio.TimeoutError:
-            print("Timeout: No data received for 1 hour")
+            # This is expected due to our short timeout
+            continue
+        except Exception as e:
+            logger.error(f"Error in SSE stream for session {sessionId}: {str(e)}")
             break
 						
 @router.get(
@@ -916,5 +929,14 @@ async def event_stream(sessionId):
 		data: {"sessionId": "1", "username": "example123", "event": "HEARTRATE", "value": "72"}
 		"""
 )
-async def session(sessionId):
-		return StreamingResponse(event_stream(sessionId), media_type="text/event-stream")
+async def session(sessionId: str):
+    """SSE endpoint for session updates"""
+    response = StreamingResponse(
+        event_stream(sessionId),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
+    return response

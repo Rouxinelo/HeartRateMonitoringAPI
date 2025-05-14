@@ -897,8 +897,7 @@ async def event_stream(sessionId: str):
             # Get data with a short timeout to allow periodic checks
             data = await asyncio.wait_for(event_queue.get(), timeout=1.0)
             
-            if data.sessionId == sessionId:
-                yield f"data: {data.json()}\n\n"
+            yield data.json()
                 
             # Add a small sleep to prevent tight loop
             await asyncio.sleep(0.01)
